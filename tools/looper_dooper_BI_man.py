@@ -1,26 +1,17 @@
 # python tools/looper_dooper_BI_man.py
 
-
-
-
-
 import subprocess
 import time
+import shlex
 
 # List of Python scripts to run
 python_scripts = [
 
 
-    # All Barrels Report
-    "tools/vintrace_playwright_Barrel_Report.py",
-
-    # Vessels Search Report
-    "tools/vintrace_playwright_vessels_report.py",
-
     # Dispatch Console Reports
-    "tools/vintrace_dispatch_search_console.py --mode recent --days 7",
-    "tools/vintrace_dispatch_search_console.py --mode missing",
-    "tools/vintrace_dispatch_search_console.py --mode fetch --csv missing_dispatches.csv",
+    "tools/vintrace_playwright_dispatch_search_console.py --mode recent --days 7",
+    "tools/vintrace_playwright_dispatch_search_console.py --mode missing",
+    "tools/vintrace_playwright_dispatch_search_console.py --mode fetch --csv missing_dispatches.csv",
     "tools/vintrace_search_console_data.py",
 ]
 
@@ -30,7 +21,9 @@ for i in range(num_loops):
     print(f"Loop {i+1}/{num_loops}")
     for script in python_scripts:
         print(f"Running {script}...")
-        result = subprocess.run(["python", script])
+        # Split the script command properly to handle arguments
+        cmd_parts = shlex.split(script)
+        result = subprocess.run(["python"] + cmd_parts)
         if result.returncode != 0:
             print(f"{script} exited with error code {result.returncode}")
         else:
