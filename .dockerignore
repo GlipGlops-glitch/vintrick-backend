@@ -1,0 +1,14 @@
+node_modules
+npm-debug.log
+Dockerfile*
+*.md
+.git
+app/Main/data/
+Main/data/
+app/swagger_client
+.venv
+dist
+*.log
+*.csv
+*.bak
+__pycache__

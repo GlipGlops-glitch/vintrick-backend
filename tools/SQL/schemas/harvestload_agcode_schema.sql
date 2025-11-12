@@ -1,0 +1,31 @@
+-- vintrick-backend/tools/SQL/schemas/harvestload_agcode_schema.sql
+
+CREATE TABLE harvestload_agcode (
+    uid UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
+    season_year NVARCHAR(10) NULL,
+    block_short_name NVARCHAR(50) NULL,
+    load_status NVARCHAR(20) NULL,
+    load_rec_date NVARCHAR(30) NULL,
+    weight_cert_id NVARCHAR(30) NULL,
+    delivery_ticket NVARCHAR(30) NULL,
+    inbound_container_count NVARCHAR(10) NULL,
+    outbound_container_count NVARCHAR(10) NULL,
+    harvest_date NVARCHAR(30) NULL,
+    truck NVARCHAR(30) NULL,
+    trailer_01 NVARCHAR(30) NULL,
+    trailer_02 NVARCHAR(30) NULL,
+    inbound_container_type NVARCHAR(30) NULL,
+    outbound_container_type NVARCHAR(30) NULL,
+    deliver_to NVARCHAR(30) NULL,
+    intended_use NVARCHAR(30) NULL,
+    harvest_type NVARCHAR(30) NULL,
+    scale_operator NVARCHAR(50) NULL,
+    gross_weight_value FLOAT NULL,
+    gross_weight_unit NVARCHAR(10) NULL,
+    tare_weight_value FLOAT NULL,
+    tare_weight_unit NVARCHAR(10) NULL,
+    net_weight_value FLOAT NULL,
+    net_weight_unit NVARCHAR(10) NULL,
+    last_modified DATETIME NULL,
+    synced BIT DEFAULT 0 NULL
+);

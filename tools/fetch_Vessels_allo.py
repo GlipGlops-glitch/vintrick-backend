@@ -1,0 +1,103 @@
+# vintrick-backend/tools/fetch_vessels.py
+# python tools/fetch_Vessels_allo.py
+
+import os
+import json
+import logging
+from dotenv import load_dotenv
+import requests
+
+def setup_logging():
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(asctime)s [%(levelname)s] %(message)s",
+    )
+    return logging.getLogger(__name__)
+
+logger = setup_logging()
+
+def ensure_dir(dir_path):
+    if not os.path.exists(dir_path):
+        os.makedirs(dir_path)
+
+if __name__ == "__main__":
+    load_dotenv()
+    VINTRACE_API_TOKEN = os.getenv("VINTRACE_API_TOKEN")
+    BASE_URL = os.getenv("BASE_VINTRACE_URL", "https://us61.vintrace.net")
+
+    if not VINTRACE_API_TOKEN:
+        logger.error("No VINTRACE_API_TOKEN found in environment. Exiting.")
+        exit(1)
+
+    endpoint_path = "/smwe/api/v7/report/vessel-details-report"
+    url = BASE_URL + endpoint_path
+
+    output_dir = "Main/data/GET--vessels"
+    ensure_dir(output_dir)
+    output_path = os.path.join(output_dir, "vessels_allo.json")
+
+    headers = {
+        "Authorization": f"Bearer {VINTRACE_API_TOKEN}"
+    }
+
+    # First, get totalResults
+    params = {
+        "limit": 1,
+        "offset": 0,
+        "extraFields": "allocations"
+        # "extraFields": "composition,allocations,livemetrics"
+    }
+    logger.info(f"Getting total number of vessels from {url} ...")
+    try:
+        response = requests.get(url, headers=headers, params=params)
+        response.raise_for_status()
+        result = response.json()
+        total_results = result.get("totalResults", 0)
+    except Exception as e:
+        logger.error(f"❌ Error fetching totalResults: {e}")
+        total_results = 0
+
+    # Now, fetch all vessels in batches
+    limit = 200
+    offset = 0
+    all_vessels = []
+
+    logger.info(f"Fetching all vessels ({total_results}) from {url} with paginated params")
+
+    while offset < total_results:
+        params = {
+            "extraFields": "allocations",
+            "limit": limit,
+            "offset": offset,
+            # "extraFields": "composition,allocations,livemetrics",
+        }
+        logger.info(f"Requesting offset {offset}")
+        try:
+            response = requests.get(url, headers=headers, params=params)
+            response.raise_for_status()
+            result = response.json()
+
+            vessels = result.get("results", [])
+            if not vessels:
+                logger.info("No more vessels returned, stopping pagination.")
+                break
+
+            all_vessels.extend(vessels)
+            logger.info(f"Retrieved {len(vessels)} vessels at offset {offset}")
+
+            offset += limit
+
+        except Exception as e:
+            logger.error(f"❌ Error fetching vessels at offset {offset}: {e}")
+            break
+
+    with open(output_path, "w", encoding="utf-8") as f:
+        json.dump(all_vessels, f, indent=2, ensure_ascii=False)
+    logger.info(f"✅ Saved {len(all_vessels)} vessels to {output_path}")
+
+    # Write first 10 records to a sample file
+    sample_output_path = os.path.join(output_dir, "vessels_sample.json")
+    sample_vessels = all_vessels[:10] if len(all_vessels) >= 10 else all_vessels
+    with open(sample_output_path, "w", encoding="utf-8") as f:
+        json.dump(sample_vessels, f, indent=2, ensure_ascii=False)
+    logger.info(f"✅ Saved {len(sample_vessels)} sample vessels to {sample_output_path}")

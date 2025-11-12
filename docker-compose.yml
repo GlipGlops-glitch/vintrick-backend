@@ -1,0 +1,15 @@
+
+services:
+  api:
+    build: .
+    ports:
+      - "3000:3000"
+    volumes:
+      - .:/app
+      - ./app/Main/data:/app/Main/data
+    env_file:
+      - .env
+    # No depends_on: - mssql
+    # No mssql service
+
+
