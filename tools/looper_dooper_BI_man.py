@@ -17,9 +17,11 @@ python_scripts = [
     # Vessels Search Report
     "tools/vintrace_playwright_vessels_report.py",
 
-    # Analysis Export Report & melt 
-    "tools/vintrace_playwright_analysis_report.py",
-    "tools/vintrace_analysis_process.py",
+    # Dispatch Console Reports
+    "tools/vintrace_dispatch_search_console.py --mode recent --days 7",
+    "tools/vintrace_dispatch_search_console.py --mode missing",
+    "tools/vintrace_dispatch_search_console.py --mode fetch --csv missing_dispatches.csv",
+    "tools/vintrace_search_console_data.py",
 ]
 
 # Number of times to loop through the list
