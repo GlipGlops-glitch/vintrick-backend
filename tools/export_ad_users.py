@@ -2,6 +2,7 @@
 # Export enabled AD users to CSV (filters out disabled accounts)
 
 import csv
+import os
 from ldap3 import Server, Connection, ALL, NTLM
 
 # === CONFIGURE THESE VALUES ===
@@ -32,8 +33,13 @@ conn.search(
     attributes=["sAMAccountName", "displayName", "mail"]
 )
 
+# Ensure output directory exists
+output_dir = "Main/data"
+os.makedirs(output_dir, exist_ok=True)
+output_path = os.path.join(output_dir, "ad_users.csv")
+
 # Write results to CSV
-with open("ad_users.csv", "w", newline='', encoding="utf-8") as csvfile:
+with open(output_path, "w", newline='', encoding="utf-8") as csvfile:
     writer = csv.writer(csvfile)
     writer.writerow(["username", "display_name", "email"])
     for entry in conn.entries:
@@ -42,6 +48,6 @@ with open("ad_users.csv", "w", newline='', encoding="utf-8") as csvfile:
         email = str(entry.mail) if hasattr(entry, "mail") else ""
         writer.writerow([username, display_name, email])
 
-print("Export complete. Saved to ad_users.csv")
+print(f"Export complete. Saved to {output_path}")
 
 conn.unbind()
