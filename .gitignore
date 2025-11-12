@@ -20,18 +20,12 @@ lib64/
 parts/
 sdist/
 var/
+wheels/
 *.egg-info/
 .installed.cfg
 *.egg
 
-*.csv
-*.xlsx
-*.xls
-*.json
-
 # PyInstaller
-#  Usually these files are written by a python script from a template
-#  before PyInstaller builds the exe, so as to inject date/other infos into it.
 *.manifest
 *.spec
 
@@ -49,14 +43,12 @@ nosetests.xml
 coverage.xml
 *,cover
 .hypothesis/
-venv/
-.python-version
 
 # Translations
 *.mo
 *.pot
 
-# Django stuff:
+# Django stuff
 *.log
 
 # Sphinx documentation
@@ -65,8 +57,49 @@ docs/_build/
 # PyBuilder
 target/
 
-#Ipython Notebook
+# Jupyter Notebook
 .ipynb_checkpoints
+
+# Virtual environments
+venv/
+ENV/
+env/
+.python-version
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Environment variables
+.env
+.env.local
+
+# Data files
+*.csv
+*.xlsx
+*.xls
+*.json
+
+# Images
+*.png
+*.jpg
+
+# Debug files
+debug_screenshots/
+downloads/
+reports/
+screenshots/
+debug_*.png
+
+# Selector tracking
+selector_tracking.json
 
 # Playwright
 node_modules/
@@ -75,5 +108,23 @@ node_modules/
 /blob-report/
 /playwright/.cache/
 
+# API Client test outputs
+API/examples/*.json
+API/examples/*.csv
+API/examples/vintrace_export_*/
+work_orders_export.json
+vintrace_products_*.csv
+stock_*_details.json
+transactions_*.json
+vintrace_export_*/
+
+# Analysis outputs
+lineage_reports/
+example_exports/
+inventory_analysis_reports/
+test_lineage_exports/
+
 # Project specific
 Main/
+Main/data/vintrace_reports/fruit_reports/
+Main/data/vintrace_reports/analysis/combined_fruit_reports.json
