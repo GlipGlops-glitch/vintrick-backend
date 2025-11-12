@@ -74,6 +74,16 @@ Transform and process data:
 - `export_shipments_flat_excel.py` - Export flat shipment data
 - `vintrace_work_detail_extract_parcel_weightag_glob*.py` - Extract parcel weight data
 
+### 4a. Analysis Scripts
+Advanced analytics and reporting:
+
+- `vessel_batch_lineage_analysis.py` - **NEW** - Analyze vessel-batch transaction lineage
+  - Tracks gallons flow through batch transactions
+  - Creates complete lineage maps showing all contributing batches
+  - Exports Power BI ready CSV files
+  - See `VESSEL_BATCH_LINEAGE_README.md` for full documentation
+  - Example usage: `tools/examples/vessel_batch_lineage_examples.py`
+
 ### 5. Orchestration Scripts
 Run multiple scripts in sequence:
 
