@@ -1,4 +1,4 @@
-# vintrick-backend/tools/fetch_vessels.py
+
 # python tools/fetch_Vessels_allo.py
 
 import os
@@ -96,7 +96,7 @@ if __name__ == "__main__":
     logger.info(f"✅ Saved {len(all_vessels)} vessels to {output_path}")
 
     # Write first 10 records to a sample file
-    sample_output_path = os.path.join(output_dir, "vessels_sample.json")
+    sample_output_path = os.path.join(output_dir, "vessels_allo_sample.json")
     sample_vessels = all_vessels[:10] if len(all_vessels) >= 10 else all_vessels
     with open(sample_output_path, "w", encoding="utf-8") as f:
         json.dump(sample_vessels, f, indent=2, ensure_ascii=False)

@@ -2,6 +2,7 @@
 
 import subprocess
 import time
+import shlex
 
 # List of Python scripts to run
 python_scripts = [
@@ -31,11 +32,11 @@ python_scripts = [
     "tools/vintrace_Grape_Report_with_bookingSummary_playwright.py",
     "tools/vintrace_grape_report_detail.py",
 
-    # Dispatch Console Reports
-    "tools/vintrace_dispatch_search_console.py --mode recent --days 7",
-    "tools/vintrace_dispatch_search_console.py --mode missing",
-    "tools/vintrace_dispatch_search_console.py --mode fetch --csv path/to/missing_dispatches.csv",
-    "tools/vintrace_search_console_data.py",
+    # # Dispatch Console Reports
+    # "tools/vintrace_dispatch_search_console.py --mode recent --days 7",
+    # "tools/vintrace_dispatch_search_console.py --mode missing",
+    # "tools/vintrace_dispatch_search_console.py --mode fetch --csv path/to/missing_dispatches.csv",
+    # "tools/vintrace_search_console_data.py",
 
     # Work Detailz Reports
     "tools/vintrace_playwright_work_detailz.py",
@@ -64,7 +65,9 @@ for i in range(num_loops):
     print(f"Loop {i+1}/{num_loops}")
     for script in python_scripts:
         print(f"Running {script}...")
-        result = subprocess.run(["python", script])
+        # Split the script command properly to handle arguments
+        cmd_parts = shlex.split(script)
+        result = subprocess.run(["python"] + cmd_parts)
         if result.returncode != 0:
             print(f"{script} exited with error code {result.returncode}")
         else:

@@ -1,4 +1,4 @@
-#  python tools/vintrace_playwright_analysis_report.py
+#  python vintrace_playwright_analysis_report.py
 
 
 
