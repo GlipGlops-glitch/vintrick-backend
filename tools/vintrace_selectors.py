@@ -71,8 +71,11 @@ class OldUISelectors:
     
     # Quick launch icons
     REPORTS_ICON = [
-        "#c_170",
-        "div[title='Reports']",
+        "#c_170",  # Primary ID selector
+        "div[title='Reports']",  # Title attribute selector
+        "div.vintrace-quick-launch-item[title='Reports']",  # Quick launch specific
+        "div.vintrace-quick-launch-item[style*='reports-off.png']",  # By background image
+        "[title='Reports'].vintrace-quick-launch-item",  # Combined selector
     ]
     
     # Report categories
