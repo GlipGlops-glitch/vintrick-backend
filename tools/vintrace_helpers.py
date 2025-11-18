@@ -1254,12 +1254,12 @@ async def close_report_window(page: Page):
 # NAVIGATION HELPERS - OLD UI
 # ============================================================================
 
-async def navigate_to_reports_old_ui(iframe):
+async def navigate_to_reports_old_ui(page_or_frame):
     """
     Navigate to Reports section in old Vintrace UI - tries multiple methods.
     
     Args:
-        iframe: Playwright Frame object (the main Vintrace iframe)
+        page_or_frame: Playwright Page or Frame object (the main Vintrace iframe or page)
     
     Returns:
         bool: True if navigation successful, False otherwise
@@ -1268,18 +1268,25 @@ async def navigate_to_reports_old_ui(iframe):
     
     # METHOD 1: Try the bottom quick launch bar (icon-based)
     print("  Attempting Method 1: Quick Launch Bar...")
-    reports_icon_selectors = [
-        "div.vintrace-quick-launch-item[title='Reports']",
-        "div.vintrace-quick-launch-item[style*='reports-off.png']",
-        "[title='Reports'].vintrace-quick-launch-item",
-    ]
+    
+    # Use centralized selectors if available, with fallbacks
+    if OldUISelectors:
+        reports_icon_selectors = OldUISelectors.REPORTS_ICON.copy()
+    else:
+        reports_icon_selectors = [
+            "#c_170",
+            "div[title='Reports']",
+            "div.vintrace-quick-launch-item[title='Reports']",
+            "div.vintrace-quick-launch-item[style*='reports-off.png']",
+            "[title='Reports'].vintrace-quick-launch-item",
+        ]
     
     # Sort by historical success
     reports_icon_selectors = get_sorted_selectors("navigate_to_reports_old_ui_quicklaunch", reports_icon_selectors)
     
     for selector in reports_icon_selectors:
         try:
-            element = await iframe.query_selector(selector)
+            element = await page_or_frame.query_selector(selector)
             if element:
                 is_visible = await element.is_visible()
                 if is_visible:
@@ -1294,7 +1301,7 @@ async def navigate_to_reports_old_ui(iframe):
                         "old_ui_reports_quicklaunch",
                         "Reports quick launch icon"
                     )
-                    await wait_for_all_vintrace_loaders(iframe)
+                    await wait_for_all_vintrace_loaders(page_or_frame)
                     await asyncio.sleep(2)
                     print("✓ Successfully navigated to Reports section")
                     return True
@@ -1319,7 +1326,7 @@ async def navigate_to_reports_old_ui(iframe):
     consoles_clicked = False
     for selector in consoles_selectors:
         try:
-            elements = await iframe.query_selector_all(selector)
+            elements = await page_or_frame.query_selector_all(selector)
             for element in elements:
                 text = await element.inner_text()
                 if "Consoles" in text.strip():
@@ -1350,7 +1357,7 @@ async def navigate_to_reports_old_ui(iframe):
     print("  Looking for 'Reports...' in dropdown menu...")
     
     # Find all menu items and look for "Reports..."
-    all_menu_items = await iframe.query_selector_all("div.vintrace-menu-item")
+    all_menu_items = await page_or_frame.query_selector_all("div.vintrace-menu-item")
     
     for item in all_menu_items:
         try:
@@ -1367,7 +1374,7 @@ async def navigate_to_reports_old_ui(iframe):
                     "old_ui_reports_menu_item",
                     "Reports menu item in Consoles dropdown"
                 )
-                await wait_for_all_vintrace_loaders(iframe)
+                await wait_for_all_vintrace_loaders(page_or_frame)
                 await asyncio.sleep(2)
                 print("✓ Successfully navigated to Reports section")
                 return True

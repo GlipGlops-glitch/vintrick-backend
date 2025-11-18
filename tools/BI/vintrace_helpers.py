@@ -1254,73 +1254,135 @@ async def close_report_window(page: Page):
 # NAVIGATION HELPERS - OLD UI
 # ============================================================================
 
-async def navigate_to_reports_old_ui(page: Page):
+async def navigate_to_reports_old_ui(page_or_frame):
     """
-    Navigate to Reports in the OLD Vintrace UI.
-    Clicks the Reports quick launch icon.
-
+    Navigate to Reports section in old Vintrace UI - tries multiple methods.
+    
     Args:
-        page: Playwright Page object
-
+        page_or_frame: Playwright Page or Frame object (the main Vintrace iframe or page)
+    
     Returns:
         bool: True if navigation successful, False otherwise
     """
-    print("\n" + "=" * 60)
-    print("NAVIGATING TO REPORTS (OLD UI)")
-    print("=" * 60)
-
-    # Click Reports icon - try by ID first, then by title
-    reports_clicked = False
-
-    selectors = [
-        "#c_170",
-        "div[title='Reports']"
-    ]
-
+    print("\n🔍 Navigating to Reports section...")
     
-    # Click Reports icon - use centralized selectors if available
-    reports_clicked = False
+    # METHOD 1: Try the bottom quick launch bar (icon-based)
+    print("  Attempting Method 1: Quick Launch Bar...")
     
+    # Use centralized selectors if available, with fallbacks
     if OldUISelectors:
-        selectors = OldUISelectors.REPORTS_ICON.copy()
+        reports_icon_selectors = OldUISelectors.REPORTS_ICON.copy()
     else:
-        selectors = [
+        reports_icon_selectors = [
             "#c_170",
-            "div[title='Reports']"
+            "div[title='Reports']",
+            "div.vintrace-quick-launch-item[title='Reports']",
+            "div.vintrace-quick-launch-item[style*='reports-off.png']",
+            "[title='Reports'].vintrace-quick-launch-item",
         ]
     
     # Sort by historical success
-    selectors = get_sorted_selectors("navigate_to_reports_old_ui", selectors)
-
-    for selector in selectors:
+    reports_icon_selectors = get_sorted_selectors("navigate_to_reports_old_ui_quicklaunch", reports_icon_selectors)
+    
+    for selector in reports_icon_selectors:
         try:
-            await page.wait_for_selector(selector, timeout=MEDIUM_TIMEOUT)
-            reports_icon = await page.query_selector(selector)
-            if reports_icon:
-                await reports_icon.scroll_into_view_if_needed()
-                await reports_icon.click()
-                reports_clicked = True
-                print(f"✓ Clicked the 'Reports' quick launch icon using: {selector}")
-                track_selector(
-                    "navigate_to_reports_old_ui",
-                    selector,
-                    "css",
-                    "old_ui_reports",
-                    "Reports icon in old UI"
-                )
+            element = await page_or_frame.query_selector(selector)
+            if element:
+                is_visible = await element.is_visible()
+                if is_visible:
+                    await element.scroll_into_view_if_needed()
+                    await asyncio.sleep(0.5)
+                    await element.click()
+                    print(f"  ✓ Clicked Reports icon in quick launch bar using: {selector}")
+                    track_selector(
+                        "navigate_to_reports_old_ui_quicklaunch",
+                        selector,
+                        "css",
+                        "old_ui_reports_quicklaunch",
+                        "Reports quick launch icon"
+                    )
+                    await wait_for_all_vintrace_loaders(page_or_frame)
+                    await asyncio.sleep(2)
+                    print("✓ Successfully navigated to Reports section")
+                    return True
+        except Exception as e:
+            continue
+    
+    print("  ✗ Quick launch bar method failed, trying Consoles menu...")
+    
+    # METHOD 2: Try the Consoles dropdown menu
+    print("  Attempting Method 2: Consoles Menu...")
+    
+    # Step 1: Click on "Consoles" to open the dropdown
+    consoles_selectors = [
+        "td:has-text('Consoles')",
+        "div:has-text('Consoles')",
+        "div[id*='MenuItem']:has-text('Consoles')",
+    ]
+    
+    # Sort by historical success
+    consoles_selectors = get_sorted_selectors("navigate_to_reports_old_ui_consoles", consoles_selectors)
+    
+    consoles_clicked = False
+    for selector in consoles_selectors:
+        try:
+            elements = await page_or_frame.query_selector_all(selector)
+            for element in elements:
+                text = await element.inner_text()
+                if "Consoles" in text.strip():
+                    await element.scroll_into_view_if_needed()
+                    await asyncio.sleep(0.5)
+                    await element.click()
+                    print(f"  ✓ Clicked 'Consoles' menu")
+                    track_selector(
+                        "navigate_to_reports_old_ui_consoles",
+                        selector,
+                        "css",
+                        "old_ui_consoles_menu",
+                        "Consoles dropdown menu"
+                    )
+                    consoles_clicked = True
+                    await asyncio.sleep(1.5)  # Wait for dropdown to appear
+                    break
+            if consoles_clicked:
                 break
         except Exception as e:
-            print(f"  ✗ Could not click Reports icon with selector '{selector}': {e}")
-
-    if not reports_clicked:
-        print("❌ ERROR: Could not click Reports icon")
-        await save_debug_screenshot(page, "navigate_reports_old_error")
+            continue
+    
+    if not consoles_clicked:
+        print("  ❌ ERROR: Could not click 'Consoles' menu")
         return False
-
-    await wait_for_all_vintrace_loaders(page)
-    await asyncio.sleep(1)
-    print("✓ Reports section loaded")
-    return True
+    
+    # Step 2: Click on "Reports..." in the dropdown
+    print("  Looking for 'Reports...' in dropdown menu...")
+    
+    # Find all menu items and look for "Reports..."
+    all_menu_items = await page_or_frame.query_selector_all("div.vintrace-menu-item")
+    
+    for item in all_menu_items:
+        try:
+            text = await item.inner_text()
+            if "Reports..." in text.strip():
+                await item.scroll_into_view_if_needed()
+                await asyncio.sleep(0.3)
+                await item.click()
+                print("  ✓ Clicked 'Reports...' from menu")
+                track_selector(
+                    "navigate_to_reports_old_ui_menu_item",
+                    "div.vintrace-menu-item",
+                    "css",
+                    "old_ui_reports_menu_item",
+                    "Reports menu item in Consoles dropdown"
+                )
+                await wait_for_all_vintrace_loaders(page_or_frame)
+                await asyncio.sleep(2)
+                print("✓ Successfully navigated to Reports section")
+                return True
+        except Exception:
+            continue
+    
+    print("  ❌ ERROR: All methods to navigate to Reports failed")
+    return False
 
 
 async def click_vintage_harvest_tab_old_ui(page: Page):
