@@ -1,3 +1,17 @@
+"""
+⚠️ DEPRECATED - This file has been refactored
+
+Please use the new version:
+    from ReportsVintrace.old_ui.analysis_report import AnalysisReport
+    
+Or run standalone:
+    python ReportsVintrace/old_ui/run_analysis_report.py
+
+This file remains for backward compatibility but will be removed in a future version.
+
+Original functionality preserved in: ReportsVintrace/old_ui/analysis_report.py
+"""
+
 #  python tools/vintrace_playwright_analysis_report.py
 
 
