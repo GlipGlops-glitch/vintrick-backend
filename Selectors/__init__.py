@@ -38,6 +38,10 @@ Architecture:
     │   ├── reports.py   # Report generation
     │   ├── vessels.py   # Vessel/barrel pages
     │   └── export.py    # Export functionality
+    ├── old_ui/          # Old UI selectors
+    │   ├── common.py    # Iframes, loaders
+    │   ├── navigation.py # Navigation
+    │   └── reports.py   # Report generation
     ├── tracking/        # Performance tracking
     │   └── selector_performance.py
     └── utils.py         # Helper functions
@@ -45,16 +49,24 @@ Architecture:
 
 # Import organized selector modules
 from . import new_ui
+from . import old_ui
 from . import tracking
 from . import utils
 
-# Import main selector classes for convenience
+# Import main selector classes for convenience (New UI)
 from .new_ui import (
     Common,
     Navigation,
     Export,
     Reports,
     Vessels,
+)
+
+# Import Old UI selector classes
+from .old_ui import (
+    Common as OldCommon,
+    Navigation as OldNavigation,
+    Reports as OldReports,
 )
 
 # Import tracking functions
@@ -75,7 +87,7 @@ from .utils import (
 )
 
 
-# Create convenient alias
+# Create convenient aliases
 class NewUI:
     """New UI (PrimeFaces) selectors - organized by function"""
     Common = Common
@@ -83,6 +95,13 @@ class NewUI:
     Export = Export
     Reports = Reports
     Vessels = Vessels
+
+
+class OldUI:
+    """Old UI selectors - organized by function"""
+    Common = OldCommon
+    Navigation = OldNavigation
+    Reports = OldReports
 
 
 # Package metadata
@@ -93,6 +112,7 @@ __author__ = 'GlipGlops-glitch'
 __all__ = [
     # Main selector classes
     'NewUI',
+    'OldUI',
     'Common',
     'Navigation',
     'Export',
@@ -114,6 +134,7 @@ __all__ = [
     
     # Submodules
     'new_ui',
+    'old_ui',
     'tracking',
     'utils',
 ]
