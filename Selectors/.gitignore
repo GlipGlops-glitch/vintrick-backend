@@ -1,0 +1,13 @@
+# Selector performance tracking data
+selector_stats.json
+
+# Performance reports
+selector_performance_report.txt
+*_report.txt
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
