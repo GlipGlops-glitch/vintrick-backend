@@ -4,11 +4,11 @@ Centralized selector repository based on actual HTML structure analysis
 
 Author: GlipGlops-glitch
 Created: 2025-01-11
-Last Updated: 2025-01-11
+Last Updated: 2025-01-18
 
 This module contains selector definitions extracted from the Vintrace HTML files
-to ensure accurate and maintainable automation. Selectors are organized by
-UI version (New/Old) and functional area.
+and Playwright codegen to ensure accurate and maintainable automation. 
+Selectors are organized by UI version (New/Old) and functional area.
 """
 
 # ============================================================================
@@ -30,6 +30,14 @@ class NewUISelectors:
         "div[id^='loader_Iframe_']",  # New UI loader pattern
     ]
     
+    # Additional loader patterns from codegen (discovered 2025-01-18)
+    LOADING_INDICATORS = [
+        "cell:has-text('Loading...')",
+        "#megaFrame:has-text('Loading...')",
+        ".vintraceLoaderText",
+        ".ui-widget-content.pe-blockui-content",
+    ]
+    
     # Barrel/Vessel page selectors
     EXPORT_BUTTON = [
         "button#vesselsForm\\:vesselsDT\\:exportButton",  # Exact ID with escaped colon
@@ -49,8 +57,25 @@ class NewUISelectors:
         "li#vesselsForm\\:vesselsDT\\:printOptions-barrelDetails ul li:has-text('All') a",
     ]
     
-    # Reports navigation
+    EXCEL_MENU_ITEM = [
+        "link:has-text('Excel')",  # From codegen - using role
+        "a[role='link']:has-text('Excel')",  # Explicit role selector
+        "li#vesselsForm\\:vesselsDT\\:printOptions-excel > a.ui-submenu-link",
+        "li[id='vesselsForm:vesselsDT:printOptions-excel'] > a.ui-submenu-link",
+        "li.vin-exportMenuOption:has-text('Excel') > a",
+    ]
+    
+    EXCEL_ALL_OPTION = [
+        "link:has-text('All')",  # PRIMARY - From codegen discovery 2025-01-18!
+        "a[role='link']:has-text('All')",  # Explicit role-based selector
+        "a#vesselsForm\\:vesselsDT\\:printOptions-excel-all",
+        "a[id='vesselsForm:vesselsDT:printOptions-excel-all']",
+        "li#vesselsForm\\:vesselsDT\\:printOptions-excel ul li:has-text('All') a",
+    ]
+    
+    # Reports navigation (updated from codegen 2025-01-18)
     REPORTS_MENU = [
+        "[id='menuform:menu-reports-cs']",  # PRIMARY - From codegen
         "a#menuform\\:menu-reports-cs",  # Exact ID with escaped colon
         "a[id='menuform:menu-reports-cs']",  # ID with attribute selector
         "li.ui-menuitem a:has-text('Reports')",
@@ -169,10 +194,10 @@ class PopupSelectors:
     """Selectors for popups, tours, and modals"""
     
     CLOSE_BUTTONS = [
+        "button:has-text('End tour')",  # From codegen - PRIMARY
         "button[data-role='end']",
         ".popover button[data-role='end']",
         ".tour button[data-role='end']",
-        "button:has-text('End tour')",
         ".popover .close",
         ".modal .close",
         "button:has-text('Close')",
@@ -211,6 +236,17 @@ class ReportSelectors:
         "div.checkbox-text:has-text('Show active only')",
         "table:has-text('Show active only') img[src*='Checkbox']",
         "*:has-text('Show active only')",
+    ]
+    
+    # Report strips
+    REPORT_STRIP = "div.reportStrip"
+    
+    # Generate buttons
+    GENERATE_BUTTON = [
+        "button:has-text('Generate')",
+        "button:has-text('Generate...')",
+        "input[type='button'][value*='Generate']",
+        "button.inlineButton.positiveAction",
     ]
 
 
@@ -251,6 +287,8 @@ def get_all_selectors_for_element(element_type: str, ui_version: str = "new"):
             'export_button': NewUISelectors.EXPORT_BUTTON,
             'barrel_details_menu': NewUISelectors.BARREL_DETAILS_MENU_ITEM,
             'barrel_details_all': NewUISelectors.BARREL_DETAILS_ALL_OPTION,
+            'excel_menu': NewUISelectors.EXCEL_MENU_ITEM,
+            'excel_all': NewUISelectors.EXCEL_ALL_OPTION,
             'reports_menu': NewUISelectors.REPORTS_MENU,
             'iframe': NewUISelectors.IFRAME_MAIN,
         },

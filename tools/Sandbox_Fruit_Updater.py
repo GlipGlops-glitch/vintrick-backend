@@ -1,7 +1,10 @@
 # python tools/Sandbox_Fruit_Updater.py
 
+# python tools/Sandbox_Fruit_Updater.py
+
 import os
 import csv
+import json
 import requests
 from dotenv import load_dotenv
 from typing import Dict, Any, Optional
@@ -50,9 +53,9 @@ class VintracePricingUploader:
             with open(csv_file, 'r', encoding='utf-8') as file:
                 reader = csv.DictReader(file)
                 
-                # Validate headers - now using 'id' instead of 'docketNo'
+                # Validate headers - using 'docketNo' as the ID
                 required_columns = {
-                    'id', 'net.value', 'net.unit',
+                    'docketNo', 'net.value', 'net.unit',
                     'gross.value', 'gross.unit',
                     'tare.value', 'tare.unit',
                     'unitPrice.value', 'unitPrice.unit'
@@ -70,9 +73,9 @@ class VintracePricingUploader:
                     if not any(row.values()):
                         continue
                     
-                    # Check if id exists
-                    if not row.get('id', '').strip():
-                        logger.warning(f"Row {row_num}: Missing id, skipping...")
+                    # Check if docketNo exists
+                    if not row.get('docketNo', '').strip():
+                        logger.warning(f"Row {row_num}: Missing docketNo, skipping...")
                         continue
                     
                     data.append(row)
@@ -111,30 +114,29 @@ class VintracePricingUploader:
             def safe_string(value):
                 return value.strip() if value and str(value).strip() else None
             
+            # Payload structure matches OpenAPI spec (no "data" wrapper)
             payload = {
-                "data": {
-                    "gross": {
-                        "value": safe_float(row.get('gross.value')),
-                        "unit": safe_string(row.get('gross.unit'))
-                    },
-                    "tare": {
-                        "value": safe_float(row.get('tare.value')),
-                        "unit": safe_string(row.get('tare.unit'))
-                    },
-                    "net": {
-                        "value": safe_float(row.get('net.value')),
-                        "unit": safe_string(row.get('net.unit'))
-                    },
-                    "unitPrice": {
-                        "value": safe_float(row.get('unitPrice.value')),
-                        "unit": safe_string(row.get('unitPrice.unit'))
-                    }
+                "gross": {
+                    "value": safe_float(row.get('gross.value')),
+                    "unit": safe_string(row.get('gross.unit'))
+                },
+                "tare": {
+                    "value": safe_float(row.get('tare.value')),
+                    "unit": safe_string(row.get('tare.unit'))
+                },
+                "net": {
+                    "value": safe_float(row.get('net.value')),
+                    "unit": safe_string(row.get('net.unit'))
+                },
+                "unitPrice": {
+                    "value": safe_float(row.get('unitPrice.value')),
+                    "unit": safe_string(row.get('unitPrice.unit'))
                 }
             }
             
             # Validate that we have required data
-            if payload['data']['unitPrice']['value'] == 0 or payload['data']['unitPrice']['value'] is None:
-                logger.warning(f"Warning: unitPrice is 0 or missing for id {row.get('id')}")
+            if payload['unitPrice']['value'] == 0 or payload['unitPrice']['value'] is None:
+                logger.warning(f"Warning: unitPrice is 0 or missing for docketNo {row.get('docketNo')}")
             
             return payload
             
@@ -147,7 +149,7 @@ class VintracePricingUploader:
         Post pricing data to Vintrace API.
         
         Args:
-            fruit_intake_id: The fruit intake ID
+            fruit_intake_id: The fruit intake ID (docket number)
             payload: The pricing data payload
             
         Returns:
@@ -156,23 +158,33 @@ class VintracePricingUploader:
         url = f"{self.base_url}/{fruit_intake_id}/pricing"
         
         try:
-            logger.debug(f"Posting to URL: {url}")
-            logger.debug(f"Payload: {payload}")
+            # Pretty print the payload for debugging
+            logger.info(f"📤 Sending to URL: {url}")
+            logger.info(f"📦 Payload:\n{json.dumps(payload, indent=2)}")
             
             response = requests.put(url, json=payload, headers=self.headers)
             response.raise_for_status()
             
-            logger.info(f"✓ Successfully posted pricing for intake ID: {fruit_intake_id}")
+            # Log the response
+            logger.info(f"📥 Response Status: {response.status_code}")
+            if response.text:
+                try:
+                    response_json = response.json()
+                    logger.info(f"📥 Response Body:\n{json.dumps(response_json, indent=2)}")
+                except:
+                    logger.info(f"📥 Response Body: {response.text}")
+            
+            logger.info(f"✓ Successfully posted pricing for docket: {fruit_intake_id}")
             return True
             
         except requests.exceptions.HTTPError as e:
-            logger.error(f"✗ HTTP error for intake ID {fruit_intake_id}: {e}")
+            logger.error(f"✗ HTTP error for docket {fruit_intake_id}: {e}")
             logger.error(f"  Status Code: {response.status_code}")
             logger.error(f"  Response: {response.text}")
             return False
             
         except requests.exceptions.RequestException as e:
-            logger.error(f"✗ Request error for intake ID {fruit_intake_id}: {e}")
+            logger.error(f"✗ Request error for docket {fruit_intake_id}: {e}")
             return False
     
     def upload_from_csv(self, csv_file: str, skip_if_zero_price: bool = True) -> Dict[str, int]:
@@ -190,32 +202,35 @@ class VintracePricingUploader:
         results = {'success': 0, 'failed': 0, 'skipped': 0}
         
         logger.info(f"Starting upload of {len(data)} records...")
+        logger.info("="*50)
         
         for idx, row in enumerate(data, 1):
-            fruit_intake_id = row['id'].strip()
+            docket_no = row['docketNo'].strip()
             
-            if not fruit_intake_id:
-                logger.warning(f"Row {idx}: Missing id, skipping...")
+            if not docket_no:
+                logger.warning(f"Row {idx}: Missing docketNo, skipping...")
                 results['skipped'] += 1
                 continue
             
             # Check if we should skip due to zero price
             unit_price = row.get('unitPrice.value', '').strip()
             if skip_if_zero_price and (not unit_price or float(unit_price) == 0):
-                logger.warning(f"Row {idx}: Skipping intake ID {fruit_intake_id} - unitPrice is 0 or empty")
+                logger.warning(f"Row {idx}: Skipping docket {docket_no} - unitPrice is 0 or empty")
                 results['skipped'] += 1
                 continue
             
             payload = self.prepare_payload(row)
             
             if payload is None:
-                logger.error(f"Row {idx}: Failed to prepare payload for intake ID {fruit_intake_id}")
+                logger.error(f"Row {idx}: Failed to prepare payload for docket {docket_no}")
                 results['failed'] += 1
                 continue
             
-            logger.info(f"Processing {idx}/{len(data)}: intake ID {fruit_intake_id}")
+            logger.info(f"\n{'='*50}")
+            logger.info(f"Processing {idx}/{len(data)}: docket {docket_no}")
+            logger.info(f"{'='*50}")
             
-            if self.post_pricing(fruit_intake_id, payload):
+            if self.post_pricing(docket_no, payload):
                 results['success'] += 1
             else:
                 results['failed'] += 1
@@ -233,7 +248,7 @@ class VintracePricingUploader:
 def main():
     """Main function to run the uploader."""
     # Specify your CSV file path here
-    csv_file = 'tools/sandbox_fruit_intake_ids.csv'
+    csv_file = 'tools/Sandbox_Costing_Test.csv'
     
     # Set to False if you want to upload even when unitPrice is 0
     skip_zero_price = True

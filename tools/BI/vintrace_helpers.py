@@ -35,7 +35,7 @@ except ImportError:
 # ============================================================================
 
 # Timeout values (in milliseconds)
-LARGE_TIMEOUT = 120000  # 2 minutes
+LARGE_TIMEOUT = 1200000  # 2 minutes
 DOWNLOAD_TIMEOUT_MS = 1200000  # 20 minutes for large reports
 STANDARD_TIMEOUT = 30000  # 30 seconds - standard wait time
 MEDIUM_TIMEOUT = 10000  # 10 seconds - medium wait time

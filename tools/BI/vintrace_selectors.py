@@ -48,7 +48,17 @@ class NewUISelectors:
         "a[id='vesselsForm:vesselsDT:printOptions-barrelDetails-all']",
         "li#vesselsForm\\:vesselsDT\\:printOptions-barrelDetails ul li:has-text('All') a",
     ]
+    EXCEL_MENU_ITEM = [
+        "li#vesselsForm\\:vesselsDT\\:printOptions-excel > a.ui-submenu-link",
+        "li[id='vesselsForm:vesselsDT:printOptions-excel'] > a.ui-submenu-link",
+        "li.vin-exportMenuOption:has-text('Excel') > a",
+    ]
     
+    EXCEL_ALL_OPTION = [
+        "a#vesselsForm\\:vesselsDT\\:printOptions-excel-all",
+        "a[id='vesselsForm:vesselsDT:printOptions-excel-all']",
+        "li#vesselsForm\\:vesselsDT\\:printOptions-excel ul li:has-text('All') a",
+    ]
     # Reports navigation
     REPORTS_MENU = [
         "a#menuform\\:menu-reports-cs",  # Exact ID with escaped colon

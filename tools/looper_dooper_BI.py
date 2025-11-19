@@ -14,8 +14,8 @@ python_scripts = [
 #  API Fetches
 
     "tools/fetch_Vessels.py",
-    # "tools/fetch_Vessels_allo.py",
-    # "tools/fetch_Vessels_liveMetrics",
+    "tools/fetch_Vessels_allo.py",
+    "tools/fetch_Vessels_liveMetrics",
 
     "tools/melt_vessels.py",
 
@@ -33,10 +33,10 @@ python_scripts = [
     "tools/vintrace_grape_report_detail.py",
 
     # # Dispatch Console Reports
-    # "tools/vintrace_dispatch_search_console.py --mode recent --days 7",
-    # "tools/vintrace_dispatch_search_console.py --mode missing",
-    # "tools/vintrace_dispatch_search_console.py --mode fetch --csv path/to/missing_dispatches.csv",
-    # "tools/vintrace_search_console_data.py",
+    "tools/vintrace_playwright_dispatch_search_console_recent_7.py",
+    "tools/vintrace_playwright_dispatch_search_console_missing.py",
+    "tools/vintrace_playwright_dispatch_search_console_fix_partials.py",
+    "tools/vintrace_search_console_data.py",
 
     # Work Detailz Reports
     "tools/vintrace_playwright_work_detailz.py",

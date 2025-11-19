@@ -1,3 +1,7 @@
+#  python tools/vintrace_playwright_vessels_report.py
+
+
+
 """
 Vintrace Vessel Details Report Automation
 Downloads vessel/barrel details CSV report and removes the first row before saving.
@@ -6,11 +10,11 @@ The Vintrace export includes an extra first row (e.g., "Exported on: DATE") befo
 the actual headers. This script removes that first row so the headers (row 2 in the 
 original) become the actual column headers in the saved CSV file.
 
-Usage: python vintrace_playwright_vessels_report.py
+Usage: python tools/vintrace_playwright_vessels_report.py
 
 Author: GlipGlops-glitch
 Created: 2025-01-11
-Last Updated: 2025-01-11
+Last Updated: 2025-01-18
 """
 import asyncio
 import os
@@ -66,7 +70,11 @@ async def download_vessel_details_report(page: Page):
     print("\nAttempting to click export button...")
     
     # Use centralized selectors from vintrace_selectors.py
-    export_btn_selectors = NewUISelectors.EXPORT_BUTTON.copy()
+    export_btn_selectors = NewUISelectors.EXPORT_BUTTON.copy() if hasattr(NewUISelectors, 'EXPORT_BUTTON') else [
+        "button.btn.btn-default.export-btn",
+        "button:has-text('Export')",
+        "button[title='Export']",
+    ]
     
     export_clicked = False
     for selector in export_btn_selectors:
@@ -97,42 +105,50 @@ async def download_vessel_details_report(page: Page):
         await save_debug_screenshot(page, "export_button_error")
         return False
     
-    # Step 2: Click "Barrel details" in the menu
-    print("\nAttempting to click 'Barrel details' menu item...")
+    # Step 2: Click "Excel" in the menu
+    print("\nAttempting to click 'Excel' menu item...")
     
-    # Use centralized selectors
-    barrel_details_selectors = NewUISelectors.BARREL_DETAILS_MENU_ITEM.copy()
+    # Use centralized selectors for Excel
+    excel_selectors = NewUISelectors.EXCEL_MENU_ITEM.copy() if hasattr(NewUISelectors, 'EXCEL_MENU_ITEM') else [
+        "a:has-text('Excel')",
+        "li:has-text('Excel')",
+        "div.dropdown-item:has-text('Excel')",
+    ]
     
-    barrel_clicked = False
-    for selector in barrel_details_selectors:
+    excel_clicked = False
+    for selector in excel_selectors:
         try:
             await iframe.wait_for_selector(selector, timeout=10000, state="visible")
-            barrel_link = await iframe.query_selector(selector)
+            excel_link = await iframe.query_selector(selector)
             
-            if barrel_link:
-                await barrel_link.scroll_into_view_if_needed()
+            if excel_link:
+                await excel_link.scroll_into_view_if_needed()
                 await asyncio.sleep(0.3)
                 
-                await barrel_link.click()
+                await excel_link.click()
                 await asyncio.sleep(1)
-                print(f"✓ Clicked 'Barrel details' using selector: {selector}")
-                track_selector("download_vessel_details_report", selector, "css", "barrel_details_menu", "Barrel details menu item")
-                barrel_clicked = True
+                print(f"✓ Clicked 'Excel' using selector: {selector}")
+                track_selector("download_vessel_details_report", selector, "css", "excel_menu", "Excel menu item")
+                excel_clicked = True
                 break
         except Exception as e:
             print(f"  ✗ Failed with selector '{selector}': {e}")
             continue
     
-    if not barrel_clicked:
-        print("❌ ERROR: Could not click 'Barrel details' menu item")
-        await save_debug_screenshot(page, "barrel_details_menu_error")
+    if not excel_clicked:
+        print("❌ ERROR: Could not click 'Excel' menu item")
+        await save_debug_screenshot(page, "excel_menu_error")
         return False
     
     # Step 3: Click "All" to download the report
     print("\nAttempting to click 'All' to download report...")
     
-    # Use centralized selectors
-    all_option_selectors = NewUISelectors.BARREL_DETAILS_ALL_OPTION.copy()
+    # Use centralized selectors for Excel All option
+    all_option_selectors = NewUISelectors.EXCEL_ALL_OPTION.copy() if hasattr(NewUISelectors, 'EXCEL_ALL_OPTION') else [
+        "a:has-text('All')",
+        "li:has-text('All')",
+        "div.dropdown-item:has-text('All')",
+    ]
     
     download_started = False
     for selector in all_option_selectors:
@@ -141,23 +157,11 @@ async def download_vessel_details_report(page: Page):
             all_option = await iframe.query_selector(selector)
             
             if all_option:
-                is_visible = await all_option.is_visible()
-                if not is_visible:
-                    print(f"  ⚠ 'All' option found but not visible with selector: {selector}")
-                    await asyncio.sleep(1)
-                    is_visible = await all_option.is_visible()
-                    if not is_visible:
-                        print(f"  ✗ 'All' option still not visible after wait")
-                        continue
-                
-                await all_option.scroll_into_view_if_needed()
-                await asyncio.sleep(0.5)
-                
                 # Set up download listener on the PAGE (not iframe) before clicking
                 async with page.expect_download(timeout=DOWNLOAD_TIMEOUT) as download_info:
                     await all_option.click(force=True)
                     print(f"✓ Clicked 'All' option using selector: {selector}")
-                    track_selector("download_vessel_details_report", selector, "css", "barrel_all_option", "All option for barrel details")
+                    track_selector("download_vessel_details_report", selector, "css", "excel_all_option", "All option for Excel export")
                 
                 # Wait for download to complete
                 download = await download_info.value

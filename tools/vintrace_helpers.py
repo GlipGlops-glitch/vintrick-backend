@@ -24,11 +24,14 @@ from playwright.async_api import Page
 from dotenv import load_dotenv
 
 # Import centralized selectors
-try:
-    from vintrace_selectors import NewUISelectors, OldUISelectors, LoginSelectors, PopupSelectors, ReportSelectors
-except ImportError:
-    # Fallback if selectors module not available
-    NewUISelectors = OldUISelectors = LoginSelectors = PopupSelectors = ReportSelectors = None
+from vintrace_selectors import (
+    NewUISelectors, 
+    OldUISelectors, 
+    LoginSelectors, 
+    PopupSelectors, 
+    ReportSelectors,
+    get_selector_list
+)
 
 # ============================================================================
 # CONSTANTS
@@ -375,9 +378,6 @@ async def wait_for_all_vintrace_loaders(page_or_frame, timeout=LARGE_TIMEOUT):
 
                     return longHidden && mainHidden;
                 }
-
-                return allLoadersHidden(document);
-            }
             """,
             timeout=timeout
         )
