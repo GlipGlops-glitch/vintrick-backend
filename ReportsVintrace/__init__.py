@@ -25,11 +25,13 @@ Usage:
 """
 
 from . import config
-from . import common
+
+# Note: common module is not imported here to avoid playwright dependency
+# Import specific classes when needed:
+# from ReportsVintrace.common.base_report import VintraceReport
 
 __version__ = "1.0.0"
 
 __all__ = [
     'config',
-    'common',
 ]
