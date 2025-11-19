@@ -1,5 +1,19 @@
 #  python vintrace_playwright_analysis_report.py
 
+"""
+⚠️ NOTICE - This script will be refactored to use the new ReportsVintrace system.
+
+The new implementation will be located at:
+    ReportsVintrace.old_ui.analysis_report_legacy.AnalysisReportLegacy
+
+For now, continue using this script. The new version will be available soon.
+
+See: ReportsVintrace/README.md for the new system documentation
+
+Created: 2025-01-11
+Notice added: 2025-01-19
+"""
+
 
 
 import asyncio

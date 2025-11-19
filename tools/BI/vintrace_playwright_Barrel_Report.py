@@ -1,4 +1,27 @@
 #  python tools/vintrace_playwright_Barrel_Report.py
+
+"""
+⚠️ DEPRECATED - This script is being replaced by the new ReportsVintrace system.
+
+Please use the new implementation instead:
+    from ReportsVintrace.current_ui.barrel_report import BarrelReport
+    
+    async with BarrelReport() as report:
+        await report.login()
+        await report.download()
+
+See: ReportsVintrace/README.md for documentation
+Migration: ReportsVintrace/examples/example_usage.py for examples
+
+This old script will be maintained for backward compatibility but may be removed
+in a future version.
+
+================================================================================
+
+ORIGINAL SCRIPT - Barrel Report Automation
+Created: 2025-01-11
+Deprecated: 2025-01-19
+"""
 import asyncio
 import os
 import sys
