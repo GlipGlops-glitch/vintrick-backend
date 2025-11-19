@@ -1,4 +1,17 @@
 """
+⚠️ NOTICE - This script will be refactored to use the new ReportsVintrace system.
+
+The new implementation will be located at:
+    ReportsVintrace.current_ui.fruit_report.FruitReport
+
+For now, continue using this script. The new version will be available soon.
+
+See: ReportsVintrace/README.md for the new system documentation
+
+================================================================================
+
+ORIGINAL DOCSTRING:
+
 Vintrace Fruit Report Automation
 Downloads fruit reports for vessels specified in unspecified_vessels.json
 
@@ -16,6 +29,7 @@ Usage: python vintrace_playwright_fruit_report.py
 
 Author: GlipGlops-glitch
 Created: 2025-01-11
+Notice added: 2025-01-19
 """
 import asyncio
 import os
